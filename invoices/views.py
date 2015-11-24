@@ -29,6 +29,7 @@ class InvoiceChangeViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         data = request.data
+        import ipdb;ipdb.set_trace()
         serializer = self.get_serializer(instance=self.get_object(), data=data)
 
         if serializer.is_valid():

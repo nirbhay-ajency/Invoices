@@ -22,16 +22,29 @@ class InvoiceSerializer(serializers.ModelSerializer):
 #     transaction = serializers.SlugRelatedField(many=True, queryset=Transcation.objects.all(), read_only=False, slug_field='category')
 
     def create(self, validated_data):
-        import ipdb;ipdb.set_trace()
+        transaction_list = []
         if validated_data.get('transaction'):
             transaction_list = validated_data.pop('transaction')
         inv_obj = Invoice.objects.create(**validated_data)
         for tarnsaction_record in transaction_list:
-            inv_obj.transaction.add(*tarnsaction_record)
-        return inv_obj 
+            tran_obj = Transcation.objects.create(**tarnsaction_record)
+            inv_obj.transaction.add(tran_obj)
+        return inv_obj
+    
+    def update(self, instance, validated_data):
+        transaction_list = []
+        if validated_data.get('transaction'):
+            transaction_list = validated_data.pop('transaction')
+        inv_obj = instance
+        inv_obj.transaction.all().delete()
+        for tarnsaction_record in transaction_list:
+            tran_obj = Transcation.objects.create(**tarnsaction_record)
+            inv_obj.transaction.add(tran_obj)
+        return inv_obj  
 
     class Meta(object):
         model = Invoice
         fields = ('id','custumer', 'invoice_date', 'quantity', 'total_amount','transaction')
+        depth = 1
 
 
