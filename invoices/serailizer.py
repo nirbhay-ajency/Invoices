@@ -29,6 +29,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         for tarnsaction_record in transaction_list:
             tran_obj = Transcation.objects.create(**tarnsaction_record)
             inv_obj.transaction.add(tran_obj)
+        self.update_invoice(inv_obj)
         return inv_obj
     
     def update(self, instance, validated_data):
@@ -40,7 +41,22 @@ class InvoiceSerializer(serializers.ModelSerializer):
         for tarnsaction_record in transaction_list:
             tran_obj = Transcation.objects.create(**tarnsaction_record)
             inv_obj.transaction.add(tran_obj)
-        return inv_obj  
+        self.update_invoice(inv_obj)
+        return inv_obj
+
+    def update_invoice(self, instance):
+        tran_data = instance.transaction.all()
+        quantity = 0;
+        amount = 0
+        for tran_obj in tran_data:
+            quantity += tran_obj.quantity
+            amount = tran_obj.line_total
+        instance.quantity = quantity
+        instance.total_amount = amount
+        instance.save()
+
+
+
 
     class Meta(object):
         model = Invoice

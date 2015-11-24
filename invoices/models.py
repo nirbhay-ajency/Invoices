@@ -9,12 +9,12 @@ from django.conf import settings
 
 class Transcation(models.Model):
     """
-        Model for Transcation mapping
+        Model for Transaction mapping
     """
     product = models.CharField(max_length=255, default=None, blank=True, null= True)
     quantity = models.IntegerField(blank=True, null=True)
     price = models.FloatField(blank=True, null=True)
-    line_total = models.FloatField(blank=True, null=True)
+    line_total = models.FloatField(blank=True, null=True, default=0)
 
     def __unicode__(self):
         return self.product
@@ -34,8 +34,9 @@ class Invoice(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
 
 
-# This code is triggered whenever a new user has been created and saved to the database
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
+@receiver(post_save, sender=Transcation)
+def Update_line_total(sender, instance=None, created=False, **kwargs):
     if created:
-        Token.objects.create(user=instance)
+        instance.line_total = instance.price * instance.quantity
+        instance.save()
+
